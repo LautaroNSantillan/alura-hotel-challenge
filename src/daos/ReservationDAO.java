@@ -31,6 +31,7 @@ public class ReservationDAO implements DAO<Reservation>{
 				
 				try(ResultSet rst = stm.getGeneratedKeys()){
 					while(rst.next()) {
+						reservation.setId(rst.getInt(1));
 						System.out.println(rst.getInt(1));
 					}
 				}

@@ -55,7 +55,7 @@ public class RegistroHuesped extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHuesped frame = new RegistroHuesped();
+					RegistroHuesped frame = new RegistroHuesped(0);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,7 +67,7 @@ public class RegistroHuesped extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHuesped() {
+	public RegistroHuesped(int reservationId) {
 		
 		this.patronsController=new PatronsController();
 		this.reservationsController=new ReservationsController();
@@ -222,6 +222,10 @@ public class RegistroHuesped extends JFrame {
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		
+		String id = String.valueOf(reservationId);
+		txtNreserva.setText(id);
+		
 		contentPane.add(txtNreserva);
 		
 		JSeparator separator_1_2 = new JSeparator();
@@ -334,10 +338,6 @@ public class RegistroHuesped extends JFrame {
 				&& !txtApellido.equals("")
 				&& !txtTelefono.equals("")) {
 			
-			Integer reservationId = 0;
-	        if (!txtNreserva.getText().isEmpty()) {
-	            reservationId = Integer.parseInt(txtNreserva.getText());
-	        }
 			
 			LocalDate birthdate = LocalDate.parse(((JTextField)txtFechaN.getDateEditor().getUiComponent()).getText());
 			Patron patron = new Patron(txtNombre.getText(),
@@ -345,7 +345,7 @@ public class RegistroHuesped extends JFrame {
 					birthdate,
 					txtNacionalidad.getSelectedItem().toString(),
 					txtTelefono.getText(),
-					reservationId);
+					Integer.parseInt(txtNreserva.getText()));
 			
 			patronsController.save(patron);
 			Exito success = new Exito();
