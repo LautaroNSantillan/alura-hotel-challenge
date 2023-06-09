@@ -5,7 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import controllers.ControllerUtils;
+import dtos.ReservationDTO;
 import factory.DBConnectionFactory;
 import models.Reservation;
 
@@ -39,6 +43,25 @@ public class ReservationDAO implements DAO<Reservation>{
 				throw new RuntimeException(e);
 			}
 		}catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public List<Reservation> listReservations(DBConnectionFactory conFactory){
+		List<Reservation> reservations = new ArrayList<Reservation>();
+		String sql = "SELECT * FROM reservations";
+		
+		try(Connection newCon = conFactory.connectToDb()){
+			this.con=newCon;
+			try (PreparedStatement pstm=con.prepareStatement(sql)){
+				pstm.execute();
+				ControllerUtils.toListReservation(reservations, pstm);
+			}catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			return reservations;
+		}
+		catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 		

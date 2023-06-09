@@ -6,6 +6,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+
+import controllers.PatronsController;
+import controllers.ReservationsController;
+import dtos.ReservationDTO;
+import models.Reservation;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -38,6 +44,12 @@ public class Busqueda extends JFrame {
 	private JLabel labelAtras;
 	private JLabel labelExit;
 	int xMouse, yMouse;
+	
+	private ReservationsController reservationsController ;
+	private PatronsController patronsController;
+	private ReservasView reservasView;
+	String reservation;
+	String patrons;
 
 	/**
 	 * Launch the application.
@@ -59,6 +71,11 @@ public class Busqueda extends JFrame {
 	 * Create the frame.
 	 */
 	public Busqueda() {
+		
+		this.reservasView=new ReservasView();
+		this.reservationsController = new ReservationsController();
+		this.patronsController = new PatronsController();
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Busqueda.class.getResource("/imagenes/lupa2.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -101,6 +118,9 @@ public class Busqueda extends JFrame {
 		modelo.addColumn("Fecha Check Out");
 		modelo.addColumn("Valor");
 		modelo.addColumn("Forma de Pago");
+		
+		loadReservationsToTable();
+		
 		JScrollPane scroll_table = new JScrollPane(tbReservas);
 		panel.addTab("Reservas", new ImageIcon(Busqueda.class.getResource("/imagenes/reservado.png")), scroll_table, null);
 		scroll_table.setVisible(true);
@@ -260,6 +280,24 @@ public class Busqueda extends JFrame {
 		lblEliminar.setBounds(0, 0, 122, 35);
 		btnEliminar.add(lblEliminar);
 		setResizable(false);
+	}
+	
+	private List<Reservation> loadReservations(){
+		return this.reservationsController.list();
+	}
+	private void loadReservationsToTable() {
+		List<Reservation> reservations = this.reservationsController.list();
+		modelo.setRowCount(0);
+		
+			for(Reservation reservation : reservations) {
+				modelo.addRow(new Object[] {
+						reservation.getId(), 
+						reservation.getFromDate(), 
+						reservation.getToDate(), 
+						reservation.getPrice(),
+						reservation.getPaymentMethod()
+				});	
+		}
 	}
 	
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
