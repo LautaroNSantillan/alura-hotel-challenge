@@ -11,15 +11,23 @@ import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JTextField;
 import com.toedter.calendar.JDateChooser;
+
+import controllers.ReservationsController;
+import models.Reservation;
+
 import java.awt.Font;
 import javax.swing.JComboBox;
+import javax.management.loading.PrivateClassLoader;
 import javax.swing.DefaultComboBoxModel;
 import java.text.Format;
+import java.time.LocalDate;
+import java.util.Calendar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.Toolkit;
 import java.beans.PropertyChangeListener;
+import java.sql.Date;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
@@ -37,6 +45,8 @@ public class ReservasView extends JFrame {
 	int xMouse, yMouse;
 	private JLabel labelExit;
 	private JLabel labelAtras;
+	
+	private ReservationsController reservationController;
 
 	/**
 	 * Launch the application.
@@ -59,6 +69,9 @@ public class ReservasView extends JFrame {
 	 */
 	public ReservasView() {
 		super("Reserva");
+		
+		this.reservationController = new ReservationsController();
+		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(ReservasView.class.getResource("/imagenes/aH-40px.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 560);
@@ -264,7 +277,7 @@ public class ReservasView extends JFrame {
 		txtFechaSalida.setFont(new Font("Roboto", Font.PLAIN, 18));
 		txtFechaSalida.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
-				//Activa el evento, después del usuario seleccionar las fechas se debe calcular el valor de la reserva
+			calculatePrice(txtFechaEntrada, txtFechaSalida);		
 			}
 		});
 		txtFechaSalida.setDateFormatString("yyyy-MM-dd");
@@ -297,8 +310,7 @@ public class ReservasView extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (ReservasView.txtFechaEntrada.getDate() != null && ReservasView.txtFechaSalida.getDate() != null) {		
-					RegistroHuesped registro = new RegistroHuesped();
-					registro.setVisible(true);
+					saveReservation();
 				} else {
 					JOptionPane.showMessageDialog(null, "Debes llenar todos los campos.");
 				}
@@ -309,10 +321,57 @@ public class ReservasView extends JFrame {
 		btnsiguiente.setBounds(238, 493, 122, 35);
 		panel.add(btnsiguiente);
 		btnsiguiente.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-
 	}
 		
+	private void saveReservation() {
+		if(txtFechaEntrada.getDate() != null 
+				&& txtFechaSalida.getDate()!=null
+				&& !txtValor.equals("")
+				&& !txtFormaPago.getSelectedItem().toString().equals("")
+				) {
+			LocalDate fromDate = LocalDate.parse(((JTextField)txtFechaEntrada.getDateEditor().getUiComponent()).getText());
+			LocalDate toDate = LocalDate.parse(((JTextField)txtFechaSalida.getDateEditor().getUiComponent()).getText());
+			
+			Reservation reservation = new Reservation(fromDate, toDate, txtValor.getText(), txtFormaPago.getSelectedItem().toString());
+			
+			reservationController.save(reservation);
+			
+			RegistroHuesped registro = new RegistroHuesped();
+			registro.setVisible(true);
+			dispose();
+		}else {
+			JOptionPane.showMessageDialog(this, "Please fill out every field");
+		}
+	}
+	
+	public void calculatePrice(JDateChooser from, JDateChooser to) {
+		if(from.getDate() != null && to.getDate() !=null) {
+			
+			if(from.getDate().after(to.getDate())) {
+				JOptionPane.showMessageDialog(null, 
+						"From date can't be greater than through date",
+						"Invalid dates",
+						JOptionPane.ERROR_MESSAGE
+						);
+				return;
+			}
+			
+			Calendar fromDate = from.getCalendar();
+			Calendar toDate = to.getCalendar();
+			int days =-1;
+			int night =80;
+			double price;
+			
+			while(fromDate.before(toDate)|| fromDate.equals(toDate)) {
+				days++;
+				fromDate.add(Calendar.DATE, 1);
+			}
+			price = days*night;
+			System.out.println(price);
+			txtValor.setText(""+price);
+		}
+	}
+	
 	//Código que permite mover la ventana por la pantalla según la posición de "x" y "y"	
 	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
 	        xMouse = evt.getX();

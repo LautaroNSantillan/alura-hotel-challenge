@@ -7,6 +7,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
+
+import controllers.PatronsController;
+import controllers.ReservationsController;
+import models.Patron;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
@@ -20,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.text.Format;
+import java.time.LocalDate;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
@@ -38,6 +44,9 @@ public class RegistroHuesped extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	
+	private PatronsController patronsController;
+	private ReservationsController reservationsController;
 
 	/**
 	 * Launch the application.
@@ -59,6 +68,9 @@ public class RegistroHuesped extends JFrame {
 	 * Create the frame.
 	 */
 	public RegistroHuesped() {
+		
+		this.patronsController=new PatronsController();
+		this.reservationsController=new ReservationsController();
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHuesped.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -253,6 +265,7 @@ public class RegistroHuesped extends JFrame {
 		btnguardar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				savePatron();
 			}
 		});
 		btnguardar.setLayout(null);
@@ -313,6 +326,34 @@ public class RegistroHuesped extends JFrame {
 		labelExit.setHorizontalAlignment(SwingConstants.CENTER);
 		labelExit.setForeground(SystemColor.black);
 		labelExit.setFont(new Font("Roboto", Font.PLAIN, 18));
+	}
+	
+	private void savePatron() {
+		if(txtFechaN.getDate()!=null 
+				&& !txtNombre.equals("")
+				&& !txtApellido.equals("")
+				&& !txtTelefono.equals("")) {
+			
+			Integer reservationId = 0;
+	        if (!txtNreserva.getText().isEmpty()) {
+	            reservationId = Integer.parseInt(txtNreserva.getText());
+	        }
+			
+			LocalDate birthdate = LocalDate.parse(((JTextField)txtFechaN.getDateEditor().getUiComponent()).getText());
+			Patron patron = new Patron(txtNombre.getText(),
+					txtApellido.getText(),
+					birthdate,
+					txtNacionalidad.getSelectedItem().toString(),
+					txtTelefono.getText(),
+					reservationId);
+			
+			patronsController.save(patron);
+			Exito success = new Exito();
+			success.setVisible(true);
+			dispose();
+		}else {
+			JOptionPane.showMessageDialog(this, "Please fill out all fields");
+		}
 	}
 	
 	

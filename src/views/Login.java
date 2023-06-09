@@ -54,6 +54,7 @@ public class Login extends JFrame {
 		return txtUsuario.getText();
 	}
 	public String passwordInput() {
+		//toString doesnt work
 		return new String(txtContrasena.getPassword());	
 	}
 
