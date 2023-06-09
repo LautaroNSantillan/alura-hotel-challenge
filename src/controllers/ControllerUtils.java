@@ -44,7 +44,7 @@ public class ControllerUtils {
 				 String price = result.getString("price");
 				 String paymentMethod = result.getString("payment_method");
 				 
-				 Reservation reservation = new Reservation(fromDate, toDate, price, paymentMethod);
+				 Reservation reservation = new Reservation(id, fromDate, toDate, price, paymentMethod);
 				 list.add(reservation);
 			 }
 		 }

@@ -29,4 +29,15 @@ public class Reservation {
 		this.paymentMethod = paymentMethod;
 	}
 
+	public Reservation(int id, LocalDate fromDate, LocalDate toDate, String price, String paymentMethod) {
+		super();
+		this.id = id;
+		this.fromDate = fromDate;
+		this.toDate = toDate;
+		this.price = price;
+		this.paymentMethod = paymentMethod;
+	}
+	
+	
+
 }

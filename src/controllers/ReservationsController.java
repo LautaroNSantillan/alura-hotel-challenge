@@ -28,5 +28,9 @@ public class ReservationsController {
 	public List<Reservation> list(){
 		return this.reservationDAO.listReservations(con);
 	}
+	
+	public List<Reservation> searchById(String id){
+		return this.reservationDAO.searchById(id, con);
+	}
 
 }

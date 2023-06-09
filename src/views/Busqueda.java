@@ -236,7 +236,12 @@ public class Busqueda extends JFrame {
 		btnbuscar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
+				clearTables();
+				if(txtBuscar.getText().equals("")) {
+					loadReservationsToTable();
+				}else {
+					loadById();
+				}
 			}
 		});
 		btnbuscar.setLayout(null);
@@ -285,6 +290,9 @@ public class Busqueda extends JFrame {
 	private List<Reservation> loadReservations(){
 		return this.reservationsController.list();
 	}
+	private List<Reservation> getById(){
+		return this.reservationsController.searchById(txtBuscar.getText());
+	}
 	private void loadReservationsToTable() {
 		List<Reservation> reservations = this.reservationsController.list();
 		modelo.setRowCount(0);
@@ -298,6 +306,27 @@ public class Busqueda extends JFrame {
 						reservation.getPaymentMethod()
 				});	
 		}
+	}
+	
+	private void loadById() {
+		List<Reservation> reservations = getById();
+		modelo.setRowCount(0);
+		
+			for(Reservation reservation : reservations) {
+				modelo.addRow(new Object[] {
+						reservation.getId(), 
+						reservation.getFromDate(), 
+						reservation.getToDate(), 
+						reservation.getPrice(),
+						reservation.getPaymentMethod()
+				});	
+		}
+	}
+	
+	private void clearTables() {
+		((DefaultTableModel)tbHuespedes.getModel()).setRowCount(0);
+		((DefaultTableModel)tbReservas.getModel()).setRowCount(0);
+
 	}
 	
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"

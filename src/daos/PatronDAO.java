@@ -34,7 +34,7 @@ public class PatronDAO implements DAO<Patron> {
 					try (ResultSet result = pstm.getGeneratedKeys()) {
 				        if (result.next()) { // Move the cursor to the first row
 				            t.setId(result.getInt(1));
-				            System.out.println(result.getInt(1));
+				            System.out.println("Patron : " + result.getInt(1));
 				        } else {
 				            throw new RuntimeException("No generated keys found.");
 				        }
