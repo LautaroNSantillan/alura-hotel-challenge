@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import factory.DBConnectionFactory;
 import models.Patron;
@@ -46,6 +47,23 @@ public class PatronDAO implements DAO<Patron> {
 		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public List<Patron> list(DBConnectionFactory conFactory) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Patron> searchById(String id, DBConnectionFactory conFactory) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Integer id, DBConnectionFactory connectionFactory) {
+		// TODO Auto-generated method stub
 	}
 
 }

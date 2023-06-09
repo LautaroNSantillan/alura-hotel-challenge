@@ -14,7 +14,7 @@ public class DBConnectionFactory {
 	
 	public DBConnectionFactory(){
 		ComboPooledDataSource cpd = new ComboPooledDataSource();
-		cpd.setJdbcUrl("jdbc:mysql://localhost:3306/alura_hotel_db");
+		cpd.setJdbcUrl("jdbc:mysql://localhost:3306/alura_hotel_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
 		cpd.setUser("root");
 		cpd.setPassword("");
 		

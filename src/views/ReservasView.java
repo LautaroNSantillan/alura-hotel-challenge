@@ -367,9 +367,12 @@ public class ReservasView extends JFrame {
 				fromDate.add(Calendar.DATE, 1);
 			}
 			price = days*night;
-			System.out.println(price);
 			txtValor.setText(""+price);
 		}
+	}
+	
+	public void clearValues() {
+		txtValor.setText("");
 	}
 	
 	//Código que permite mover la ventana por la pantalla según la posición de "x" y "y"	
