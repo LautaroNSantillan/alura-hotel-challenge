@@ -10,6 +10,7 @@ import java.util.List;
 import daos.DAO;
 import dtos.ReservationDTO;
 import factory.DBConnectionFactory;
+import models.Patron;
 import models.Reservation;
 
 public class ControllerUtils {
@@ -46,6 +47,22 @@ public class ControllerUtils {
 				 
 				 Reservation reservation = new Reservation(id, fromDate, toDate, price, paymentMethod);
 				 list.add(reservation);
+			 }
+		 }
+	 }
+	 public static  void toListPatrons (List<Patron> list, PreparedStatement pstm) throws SQLException{
+		 try(ResultSet result = pstm.getResultSet()){
+			 while(result.next()) {
+				 int id = result.getInt("id");
+				 String name = result.getString("first_name");
+				 String lastName = result.getString("last_name");
+				 LocalDate birthdate=result.getDate("birthdate").toLocalDate();
+				 String nationality = result.getString("nationality");
+				 String phoneNumber = result.getString("phone_number");
+				 Integer reservationId= result.getInt("reservation_id");
+				 
+				 Patron patron = new Patron(id, name, lastName, birthdate, nationality, phoneNumber, reservationId);
+				 list.add(patron);
 			 }
 		 }
 	 }

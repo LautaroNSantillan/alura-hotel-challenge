@@ -27,4 +27,17 @@ public class Patron {
 		this.phoneNumber=phoneNumber;
 		this.reservationId = reservationId;
 	}
+
+	public Patron(int id, String name, String lastName, LocalDate birthdate, String nationality, String phoneNumber,
+			Integer reservationId) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.lastName = lastName;
+		this.birthdate = birthdate;
+		this.nationality = nationality;
+		this.phoneNumber = phoneNumber;
+		this.reservationId = reservationId;
+	}
+	
 }

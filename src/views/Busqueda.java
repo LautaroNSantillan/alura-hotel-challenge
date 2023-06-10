@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import controllers.PatronsController;
 import controllers.ReservationsController;
 import dtos.ReservationDTO;
+import models.Patron;
 import models.Reservation;
 
 import javax.swing.JTable;
@@ -23,6 +24,7 @@ import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.awt.event.ActionEvent;
@@ -35,6 +37,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -123,6 +127,8 @@ public class Busqueda extends JFrame {
 		modelo.addColumn("Valor");
 		modelo.addColumn("Forma de Pago");
 
+		tbReservas.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
 		loadReservationsToTable();
 
 		JScrollPane scroll_table = new JScrollPane(tbReservas);
@@ -141,6 +147,9 @@ public class Busqueda extends JFrame {
 		modeloHuesped.addColumn("Nacionalidad");
 		modeloHuesped.addColumn("Telefono");
 		modeloHuesped.addColumn("Número de Reserva");
+
+		loadPatronsToTable();
+
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHuespedes);
 		panel.addTab("Huéspedes", new ImageIcon(Busqueda.class.getResource("/imagenes/pessoas.png")),
 				scroll_tableHuespedes, null);
@@ -249,8 +258,10 @@ public class Busqueda extends JFrame {
 				clearTables();
 				if (txtBuscar.getText().equals("")) {
 					loadReservationsToTable();
+					loadPatronsToTable();
 				} else {
 					loadById();
+					loadPatronById();
 				}
 			}
 		});
@@ -271,10 +282,15 @@ public class Busqueda extends JFrame {
 		btnEditar.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int row = tbReservas.getSelectedRow();
-				if(row >= 0) {
+				int patronRow = tbHuespedes.getSelectedRow();
+
+				if (row >= 0) {
 					updateReservation();
-					clearTables();
-					loadReservationsToTable();
+					clearNLoad();
+				}
+				else if(patronRow>=0) {
+					updatePatron();
+					clearNLoad();
 				}
 			}
 		});
@@ -295,16 +311,25 @@ public class Busqueda extends JFrame {
 		btnEliminar.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int row = tbReservas.getSelectedRow();
-				
-				if(row>=0) {
+				int patronRow = tbHuespedes.getSelectedRow();
+
+				if (row >= 0) {
 					reservation = tbReservas.getValueAt(row, 0).toString();
-					int confirm = JOptionPane.showConfirmDialog(null,  "Are you sure you want to delete this ?");
-					if(confirm == JOptionPane.YES_OPTION) {
-					String id = tbReservas.getValueAt(row, 0).toString();
-					reservationsController.deleteReservation(Integer.valueOf(id));
-					JOptionPane.showMessageDialog(contentPane, "Succesfully deleted");
-					clearTables();
-					loadReservationsToTable();
+					int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this ?");
+					if (confirm == JOptionPane.YES_OPTION) {
+						String id = tbReservas.getValueAt(row, 0).toString();
+						reservationsController.deleteReservation(Integer.valueOf(id));
+						JOptionPane.showMessageDialog(contentPane, "Succesfully deleted");
+						clearNLoad();
+					}
+				} else if (patronRow >= 0) {
+					patrons = tbHuespedes.getValueAt(patronRow, 0).toString();
+					int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this ?");
+					if (confirm == JOptionPane.YES_OPTION) {
+						String id = tbHuespedes.getValueAt(patronRow, 0).toString();
+						patronsController.deletePatron(Integer.valueOf(id));
+						JOptionPane.showMessageDialog(contentPane, "Succesfully deleted");
+						clearNLoad();
 					}
 				}
 			}
@@ -325,6 +350,65 @@ public class Busqueda extends JFrame {
 		setResizable(false);
 	}
 
+	// PATRONS
+	private List<Patron> loadPatrons() {
+		return this.patronsController.listPatrons();
+	}
+
+	private List<Patron> getPatronById() {
+		return this.patronsController.searchById(txtBuscar.getText());
+	}
+
+	private void loadPatronsToTable() {
+		List<Patron> patrons = loadPatrons();
+		modeloHuesped.setRowCount(0);
+
+		for (Patron patron : patrons) {
+			modeloHuesped.addRow(
+					new Object[] { patron.getId(), patron.getName(), patron.getLastName(), patron.getBirthdate(),
+							patron.getNationality(), patron.getPhoneNumber(), patron.getReservationId() });
+		}
+	}
+
+	private void loadPatronById() {
+		List<Patron> patrons = getPatronById();
+		modeloHuesped.setRowCount(0);
+
+		for (Patron patron : patrons) {
+			modeloHuesped.addRow(
+					new Object[] { patron.getId(), patron.getName(), patron.getLastName(), patron.getBirthdate(),
+							patron.getNationality(), patron.getPhoneNumber(), patron.getReservationId() });
+		}
+	}
+
+	private void updatePatron() {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	    Optional.ofNullable(modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), tbHuespedes.getSelectedColumn()))
+	            .ifPresentOrElse(row -> {
+	                Integer id = Integer.valueOf(tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 0).toString());
+	                System.out.println(id);
+	                String name = (String) tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 1);
+	                String lastName = (String) tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 2);
+	                String birthdateString = modeloHuesped.getValueAt(tbHuespedes.getSelectedRow(), 3).toString();
+	                String nationality = (String) tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 4);
+	                String phoneNumber = (String) tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 5);
+	                Integer reservationId = Integer.valueOf(tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 6).toString());
+
+	                try {
+	                    Date utilDate = dateFormat.parse(birthdateString);
+	                    java.sql.Date birthdate = new java.sql.Date(utilDate.getTime());
+
+	                    this.patronsController.updatePatron(id, name, lastName, birthdate, nationality, phoneNumber, reservationId);
+	                
+	                    JOptionPane.showMessageDialog(this, String.format("Updated patron"));
+	                } catch (ParseException e) {
+	                    e.printStackTrace();
+	                }
+	            }, ()-> JOptionPane.showInternalMessageDialog(this, "Error!"));
+	}
+
+	// RESERVATIONS
 	private List<Reservation> loadReservations() {
 		return this.reservationsController.list();
 	}
@@ -353,7 +437,7 @@ public class Busqueda extends JFrame {
 		}
 	}
 
-	private void updateReservation() {		
+	private void updateReservation() {
 		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
 				.ifPresent(row -> {
 					LocalDate fromDate;
@@ -376,7 +460,8 @@ public class Busqueda extends JFrame {
 					if (tbReservas.getSelectedColumn() == 0) {
 						JOptionPane.showMessageDialog(this, "You can't modify the ID");
 					} else {
-						this.reservationsController.updateReservation(id, fromDate.minusDays(1), toDate.minusDays(1), price, paymentMethod);
+						this.reservationsController.updateReservation(id, fromDate.minusDays(1), toDate.minusDays(1),
+								price, paymentMethod);
 						JOptionPane.showMessageDialog(this, String.format("Successfully updated"));
 					}
 				});
@@ -386,8 +471,8 @@ public class Busqueda extends JFrame {
 		if (fromDate != null && toDate != null) {
 
 			int days = (int) ChronoUnit.DAYS.between(fromDate.atStartOfDay(), toDate.atStartOfDay());
-			if(days==0) {
-				days=1;
+			if (days == 0) {
+				days = 1;
 			}
 			int night = 50;
 			double price = days * night;
@@ -402,6 +487,12 @@ public class Busqueda extends JFrame {
 		((DefaultTableModel) tbHuespedes.getModel()).setRowCount(0);
 		((DefaultTableModel) tbReservas.getModel()).setRowCount(0);
 
+	}
+	
+	private void clearNLoad() {
+		clearTables();
+		loadReservationsToTable();
+		loadPatronsToTable();
 	}
 
 //Código que permite mover la ventana por la pantalla según la posición de "x" y "y"
