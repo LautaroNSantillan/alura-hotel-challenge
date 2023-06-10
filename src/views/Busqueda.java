@@ -331,6 +331,8 @@ public class Busqueda extends JFrame {
 						JOptionPane.showMessageDialog(contentPane, "Succesfully deleted");
 						clearNLoad();
 					}
+				}else {
+					JOptionPane.showMessageDialog(null,"Error! Try Again");
 				}
 			}
 
@@ -395,13 +397,19 @@ public class Busqueda extends JFrame {
 	                String phoneNumber = (String) tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 5);
 	                Integer reservationId = Integer.valueOf(tbHuespedes.getValueAt(tbHuespedes.getSelectedRow(), 6).toString());
 
+	                
 	                try {
 	                    Date utilDate = dateFormat.parse(birthdateString);
 	                    java.sql.Date birthdate = new java.sql.Date(utilDate.getTime());
+	                    if(tbHuespedes.getSelectedColumn()==0||tbHuespedes.getSelectedColumn()==6) {
+	                    	JOptionPane.showMessageDialog(this, "You can't modify the IDs");
+	                    }else {
+	                    	
+	                    	this.patronsController.updatePatron(id, name, lastName, birthdate, nationality, phoneNumber, reservationId);
+	                    	
+	                    	JOptionPane.showMessageDialog(this, String.format("Updated patron"));
+	                    }
 
-	                    this.patronsController.updatePatron(id, name, lastName, birthdate, nationality, phoneNumber, reservationId);
-	                
-	                    JOptionPane.showMessageDialog(this, String.format("Updated patron"));
 	                } catch (ParseException e) {
 	                    e.printStackTrace();
 	                }
